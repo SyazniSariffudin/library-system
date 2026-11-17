@@ -1,0 +1,35 @@
+services:
+  database:
+    image: ${POSTGRES_IMAGE:-postgres:18.7-alpine}
+    environment:
+      POSTGRES_DB: library
+      POSTGRES_USER: library
+      POSTGRES_PASSWORD: library
+    labels:
+      dev.syaz.library.acceptance-run: ${LIBRARY_TEST_RUN_ID:-manual}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  application:
+    image: ${LIBRARY_IMAGE:-library-service:1.0.0-SNAPSHOT}
+    pull_policy: never
+    environment:
+      DB_URL: jdbc:postgresql://database:5432/library
+      DB_USERNAME: library
+      DB_PASSWORD: library
+      HTTP_LOGGING_ENABLED: ${HTTP_LOGGING_ENABLED:-true}
+    ports:
+      - target: 8080
+        host_ip: 127.0.0.1
+    labels:
+      dev.syaz.library.acceptance-run: ${LIBRARY_TEST_RUN_ID:-manual}
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health/readiness"]
+      interval: 5s
+      timeout: 3s
+      retries: 20

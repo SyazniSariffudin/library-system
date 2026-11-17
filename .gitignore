@@ -1,0 +1,11 @@
+**/target/
+.tools/
+.idea/
+*.iml
+.env
+*.log
+/ASSUMPTIONS.md
+/VERIFICATION.md
+/.mvn/
+/mvnw
+/mvnw.cmd

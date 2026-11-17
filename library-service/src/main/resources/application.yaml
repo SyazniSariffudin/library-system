@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: library-service
+  main:
+    banner-mode: "off"
+  profiles:
+    default: default
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    hikari:
+      connection-init-sql: SET lock_timeout = '5s'
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  mvc:
+    problemdetails:
+      enabled: true
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+logging:
+  structured:
+    format:
+      console: ecs
+      file: ecs
+    ecs:
+      service:
+        environment: ${spring.profiles.active:default}
+library:
+  http-logging:
+    enabled: ${HTTP_LOGGING_ENABLED:true}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
